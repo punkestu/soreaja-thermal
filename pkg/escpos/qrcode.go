@@ -1,7 +1,12 @@
 package escpos
 
-// QRCode generates ESC/POS Model 2 QR code commands for the provided text.
-// size specifies module size (1-16, typical values are 4-8).
+// QRCode generates ESC/POS Model 2 QR code sequence commands (GS ( k ...) for the provided text.
+//
+// Parameters:
+//   - text: The string content or URL to encode in the QR code.
+//   - size: Module unit size in dots (range 1-16; typical values are 4 to 8 for thermal receipts).
+//
+// The error correction level is configured to M (approximately 15% recovery capacity).
 func QRCode(text string, size uint8) []byte {
 	if len(text) == 0 {
 		return nil

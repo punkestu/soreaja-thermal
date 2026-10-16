@@ -1,3 +1,7 @@
+// Package printer provides the high-level Client API for connecting to and controlling thermal receipt printers.
+//
+// It manages transport connections, text formatting (alignment, bold, underline, font scaling),
+// graphic printing with Floyd-Steinberg dithering, and ESC/POS QR code generation.
 package printer
 
 import (
@@ -10,21 +14,32 @@ import (
 	"github.com/punkestu/soreaja-thermal/pkg/transport"
 )
 
-// Re-export common types for caller convenience
+// Alignment defines horizontal text alignment.
 type Alignment = escpos.Alignment
+
+// DeviceInfo represents a detected or paired Bluetooth device.
 type DeviceInfo = transport.DeviceInfo
 
+// Text alignment constants for formatting.
 const (
-	AlignLeft   = escpos.AlignLeft
+	// AlignLeft sets left-aligned text mode.
+	AlignLeft = escpos.AlignLeft
+	// AlignCenter sets center-aligned text mode.
 	AlignCenter = escpos.AlignCenter
-	AlignRight  = escpos.AlignRight
+	// AlignRight sets right-aligned text mode.
+	AlignRight = escpos.AlignRight
 )
 
+// Common transport and validation errors.
 var (
-	ErrNotConnected    = transport.ErrNotConnected
+	// ErrNotConnected indicates an operation was attempted on an inactive connection.
+	ErrNotConnected = transport.ErrNotConnected
+	// ErrAlreadyConnected indicates a connection was attempted while already connected.
 	ErrAlreadyConnected = transport.ErrAlreadyConnected
+	// ErrConnectionFailed indicates failure to establish an RFCOMM link.
 	ErrConnectionFailed = transport.ErrConnectionFailed
-	ErrInvalidMAC      = errors.New("invalid bluetooth MAC address")
+	// ErrInvalidMAC indicates the provided Bluetooth MAC address is malformed.
+	ErrInvalidMAC = errors.New("invalid bluetooth MAC address")
 )
 
 // ScanDevices performs Bluetooth inquiry for nearby devices.

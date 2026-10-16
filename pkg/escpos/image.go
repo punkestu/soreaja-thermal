@@ -10,7 +10,10 @@ import (
 	_ "image/png"
 )
 
-// RasterizeFile reads an image file from disk and converts it to ESC/POS raster chunks.
+// RasterizeFile reads a PNG or JPEG image file from disk and converts it into
+// ESC/POS raster chunks (GS v 0 0) formatted for thermal receipt printers.
+// maxWidth specifies the target width in dots (typically 384 for 58mm paper or 576 for 80mm paper).
+// If dither is true, Floyd-Steinberg error diffusion is applied; otherwise a 50% luminance threshold is used.
 func RasterizeFile(path string, maxWidth int, dither bool) ([][]byte, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -21,7 +24,8 @@ func RasterizeFile(path string, maxWidth int, dither bool) ([][]byte, error) {
 	return RasterizeReader(file, maxWidth, dither)
 }
 
-// RasterizeReader decodes an image stream and converts it into ESC/POS raster chunks.
+// RasterizeReader decodes an image byte stream from an io.Reader and converts it into ESC/POS raster chunks.
+// It auto-scales the image if wider than maxWidth while preserving the aspect ratio.
 func RasterizeReader(r io.Reader, maxWidth int, dither bool) ([][]byte, error) {
 	img, _, err := image.Decode(r)
 	if err != nil {
@@ -30,10 +34,15 @@ func RasterizeReader(r io.Reader, maxWidth int, dither bool) ([][]byte, error) {
 	return RasterizeImage(img, maxWidth, dither, 128), nil
 }
 
-// RasterizeImage converts any image.Image into chunks of ESC/POS GS v 0 0 raster commands.
-// maxWidth: usually 384 for 58mm printer, 576 for 80mm printer.
-// dither: true applies Floyd-Steinberg error diffusion for photos/shading; false uses simple threshold.
-// chunkHeight: maximum vertical dots per ESC/POS command (128 recommended to prevent buffer overflows).
+// RasterizeImage converts any image.Image into sliced chunks of ESC/POS GS v 0 0 raster commands.
+//
+// Parameters:
+//   - src: The decoded source image (PNG, JPEG, etc.).
+//   - maxWidth: Maximum dot width (usually 384 for 58mm printer, 576 for 80mm printer; <= 0 keeps source width).
+//   - dither: If true, applies Floyd-Steinberg error diffusion for smooth gradient reproduction; if false, uses 50% luminance threshold.
+//   - chunkHeight: Maximum vertical dot rows per ESC/POS command slice (default 128) to prevent printer hardware buffer overflow.
+//
+// Returns a slice of byte buffers, each containing an individual ESC/POS GS v 0 command block.
 func RasterizeImage(src image.Image, maxWidth int, dither bool, chunkHeight int) [][]byte {
 	bounds := src.Bounds()
 	srcW := bounds.Dx()

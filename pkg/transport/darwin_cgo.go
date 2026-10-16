@@ -62,6 +62,8 @@ func init() {
 	defaultProvider = &DarwinProvider{}
 }
 
+// ScanDevices performs an active 5-second inquiry for nearby Bluetooth devices via IOBluetooth.
+// The optional onFound callback is called on each uniquely discovered device.
 func (p *DarwinProvider) ScanDevices(onFound ...func(DeviceInfo)) ([]DeviceInfo, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -92,6 +94,7 @@ func (p *DarwinProvider) ScanDevices(onFound ...func(DeviceInfo)) ([]DeviceInfo,
 	return devices, nil
 }
 
+// GetPairedDevices retrieves paired Bluetooth devices known to macOS IOBluetooth.
 func (p *DarwinProvider) GetPairedDevices() ([]DeviceInfo, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -117,6 +120,8 @@ func (p *DarwinProvider) GetPairedDevices() ([]DeviceInfo, error) {
 	return devices, nil
 }
 
+// Connect establishes an RFCOMM link to a Bluetooth printer at address on channelID.
+// If channelID is 0, the printer's first advertised SPP channel or default channel 1 is used.
 func (p *DarwinProvider) Connect(address string, channelID uint8) (Transport, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
