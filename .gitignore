@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Swift & Xcode Build Artifacts
+printerbridge
+PrinterBridge.app
+libprinterbridge.dylib
+PrinterBridge.h
+*.o
+*.dylib
+*.swiftdoc
+*.swiftmodule
+.build/
+.module-cache/
+.tmp/
+.cache/
+
+# Go Build Artifacts & Binaries
+bin/
+go-printer-test
+*.test
+*.exe
